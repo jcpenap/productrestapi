@@ -2,6 +2,8 @@ package com.bharath.springweb.controllers;
 
 import com.bharath.springweb.entities.Product;
 import com.bharath.springweb.repositories.ProductRepository;
+import io.swagger.annotations.ApiOperation;
+import jdk.jfr.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,11 @@ public class ProductController {
     @Autowired
     private ProductRepository repository;
 
+    @ApiOperation(value = "Retrieve all the products",
+            notes = "All the producs",
+            response = Product.class,
+            responseContainer = "List",
+            produces = "application/json")
     @RequestMapping(value = "/products/", method = RequestMethod.GET)
     public List<Product> getProducts() {
         return repository.findAll();
