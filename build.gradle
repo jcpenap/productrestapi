@@ -25,7 +25,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
 	implementation 'com.hazelcast:hazelcast:5.0'
 	implementation 'com.hazelcast:hazelcast-spring'
-	implementation 'io.springfox:springfox-swagger2:3.0.0'
+	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 
 
 	runtimeOnly 'mysql:mysql-connector-java'
