@@ -8,13 +8,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -44,6 +47,25 @@ class ProductControllerTest {
         mockMvc.perform(get("/productapi/products/").contextPath("/productapi"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectWriter.writeValueAsString(products)));
+    }
+
+    @Test
+    void createProducts() throws Exception {
+
+        Product product = new Product();
+        product.setId(1);
+        product.setName("MacBook");
+        product.setDescription("Its Awesome");
+        product.setPrice(5000);
+
+        when(repository.save(any())).thenReturn(product);
+
+        ObjectWriter objectWriter = new ObjectMapper().writer().withDefaultPrettyPrinter();
+
+        mockMvc.perform(post("/productapi/products/").contextPath("/productapi")
+                .contentType(MediaType.APPLICATION_JSON).content(objectWriter.writeValueAsString(product)))
+                .andExpect(status().isOk());
+
     }
 
 
