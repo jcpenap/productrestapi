@@ -1,12 +1,13 @@
 package com.bharath.springweb.controllers;
 
+import com.bharath.springweb.dto.Coupon;
 import com.bharath.springweb.entities.Product;
 import com.bharath.springweb.repositories.ProductRepository;
 import io.swagger.annotations.ApiOperation;
-import jdk.jfr.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -28,17 +30,23 @@ public class ProductController {
     @Autowired
     private ProductRepository repository;
 
+    @Value("${couponapi.service.url}")
+    private String COUPON_API_URL;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
     @ApiOperation(value = "Retrieve all the products",
             notes = "All the producs",
             response = Product.class,
             responseContainer = "List",
             produces = "application/json")
-    @RequestMapping(value = "/products/", method = RequestMethod.GET)
+    @GetMapping(value = "/products/")
     public List<Product> getProducts() {
         return repository.findAll();
     }
 
-    @RequestMapping(value = "/products/{id}", method = RequestMethod.GET)
+    @GetMapping(value = "/products/{id}")
     @Transactional(readOnly = true)
     @Cacheable("product-cache")
     public Product getProducts(@PathVariable("id") int id) {
@@ -47,17 +55,19 @@ public class ProductController {
         return repository.findById(id).get();
     }
 
-    @RequestMapping(value = "/products/", method = RequestMethod.POST)
+    @PostMapping(value = "/products/")
     public Product createProducts(@Valid @RequestBody  Product product) {
+        Coupon coupon = restTemplate.getForObject(COUPON_API_URL + product.getCouponCode(), Coupon.class);
+        product.setPrice(product.getPrice().subtract(coupon.getDiscount()));
         return repository.save(product);
     }
 
-    @RequestMapping(value = "/products/", method = RequestMethod.PUT)
+    @PutMapping(value = "/products/")
     public Product updateProducts(@RequestBody Product product) {
         return repository.save(product);
     }
 
-    @RequestMapping(value = "/products/{id}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/products/{id}")
     @CacheEvict("product-cache")
     public void deleteProduct(@PathVariable("id") int id) {
         repository.deleteById(id);

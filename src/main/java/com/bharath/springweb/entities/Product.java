@@ -3,14 +3,12 @@ package com.bharath.springweb.entities;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Entity
 @Getter
@@ -27,5 +25,7 @@ public class Product implements Serializable {
     @Size(max = 100)
     private String description;
     @Min(value = 1, message = "The minimum value should be 1")
-    private int price;
+    private BigDecimal price;
+    @Transient
+    private String couponCode;
 }
